@@ -1,0 +1,74 @@
+stages:
+ - test
+ - build
+ - deploy
+
+build_Development:
+ stage: build
+ script:
+  - cd /home/gitlab-runner/runner/development/api-gateway-service/build/libs
+  - sudo rename -f 's/\.jar$/\.jar.BACK/' *.jar
+  - cd /home/gitlab-runner/runner/development/api-gateway-service/
+  - git pull origin develop
+  - chmod +x gradlew
+  - sudo ./gradlew build -x test
+ only:
+  - develop
+ tags:
+  - MainRunner
+deploy_Development:
+ stage: deploy
+ script:
+  - scp /home/gitlab-runner/runner/development/api-gateway-service/build/libs/api-gateway-*.jar runner@172.16.50.11:/home/runner/scripts/api_gateway_service/
+  - ssh runner@172.16.50.11 "sudo /bin/bash /home/runner/scripts/api_gateway_service/api_gateway_service-deploy.sh"
+ only:
+  - develop
+ tags:
+  - MainRunner
+
+build_UAT:
+ stage: build
+ script:
+  - cd /home/gitlab-runner/runner/uat/api-gateway-service/build/libs
+  - sudo rename -f 's/\.jar$/\.jar.BACK/' *.jar
+  - cd /home/gitlab-runner/runner/uat/api-gateway-service/
+  - git pull origin master
+  - chmod +x gradlew
+  - sudo ./gradlew build -x test
+ only:
+  - master
+ tags:
+  - MainRunner
+deploy_UAT:
+ stage: deploy
+ script:
+  - scp /home/gitlab-runner/runner/uat/api-gateway-service/build/libs/api-gateway-*.jar runner@172.16.50.22:/home/runner/scripts/api_gateway_service/
+  - ssh runner@172.16.50.22 "sudo /bin/bash /home/runner/scripts/api_gateway_service/api_gateway_service-deploy.sh"
+ only:
+  - master
+ tags:
+  - MainRunner
+
+build_PROD:
+ stage: build
+ script:
+  - cd /home/gitlab-runner/runner/Production/api-gateway-service/build/libs
+  - sudo rename -f 's/\.jar$/\.jar.BACK/' *.jar
+  - cd /home/gitlab-runner/runner/Production/api-gateway-service/
+  - git pull origin master
+  - chmod +x gradlew
+  - sudo ./gradlew build -x test
+ only:
+  - master
+ tags:
+  - MainRunner
+deploy_PROD:
+ stage: deploy
+ script:
+  - scp /home/gitlab-runner/runner/Production/api-gateway-service/build/libs/api-gateway-*.jar runner@1.2.3.4:/home/runner/scripts/api_gateway_service/
+  - ssh runner@1.2.3.4 "sudo /bin/bash /home/runner/scripts/api_gateway_service/api_gateway_service-deploy.sh"
+ only:
+  - master
+ when: manual
+ tags:
+  - MainRunner
