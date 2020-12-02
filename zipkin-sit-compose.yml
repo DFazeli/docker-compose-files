@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  zipkin-sit:
+     image: openzipkin/zipkin
+     environment:
+      - STORAGE_TYPE=elasticsearch
+      - ES_HOSTS=192.168.50.18:9200
+          - ES_USERNAME=zip
+          - ES_PASSWORD=zipkinpassword
+          - ES_INDEX=index-zipkin-sit
+     ports:
+      - 9411:9411
