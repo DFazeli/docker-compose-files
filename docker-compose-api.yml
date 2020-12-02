@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    restart: always
+    image: "$CI_REGISTRY/$CI_PROJECT_PATH/$CI_COMMIT_REF_SLUG:$CI_PIPELINE_ID"
+    command: ash -c "cd /opt/api-gateway-service && java -jar *.jar --spring.profiles.active=sit --spring.cloud.config.label=sit --spring.cloud.config.uri=http://4.3.2.1:8893"
+    ports:
+      - "2500:2500"
+    networks:
+      - sit-network
+networks:
+     sit-network:
+         name:  sit-network
