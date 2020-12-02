@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  logstash:
+    image: logstash:7.9.3
+    volumes:
+      - logstash_config:/usr/share/logstash/config/
+      - logstash_piplene:/usr/share/logstash/pipeline/
+    networks:
+      - logstash-network
+    ports:
+      - 5044:5044
+      - 5033:5033
+networks:
+   logstash-network:
+       name: logstash-network
+
+
+volumes:
+  logstash_config:
+  logstash_piplene:
