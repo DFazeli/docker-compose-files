@@ -1,0 +1,103 @@
+stages:
+ - build
+ - deploy
+
+
+Build_SITCONSULT:
+ stage: build
+ script:
+  - cd $ConsultRunnerPath/$CI_COMMIT_REF_SLUG/$CI_PROJECT_NAME/build/libs
+  - rename -f 's/\.jar$/\.jar.BACK/' *.jar
+  - cd $ConsultRunnerPath/$CI_COMMIT_REF_SLUG/$CI_PROJECT_NAME/
+  - git pull origin dev
+  - chmod +x gradlew
+  - sudo update-alternatives --set java java-11-openjdk.x86_64
+  - sudo ./gradlew build -x test
+ only:
+  - dev
+ tags:
+  - MainRunner
+Deploy_SITCONSULT:
+ stage: deploy
+ script:
+  - scp $ConsultRunnerPath/$CI_COMMIT_REF_SLUG/$CI_PROJECT_NAME/build/libs/$CI_PROJECT_NAME-*.jar $SITCONSULT:$DeployScriptPath/$CI_PROJECT_NAME/
+  - ssh $SITCONSULT "sudo /bin/bash $DeployScriptPath/$CI_PROJECT_NAME/$CI_PROJECT_NAME-deploy.sh"
+ only:
+  - dev
+ tags:
+  - MainRunner
+
+Build_UATCONSULT:
+ stage: build
+ script:
+  - cd $ConsultRunnerPath/$CI_COMMIT_REF_SLUG/$CI_PROJECT_NAME/build/libs
+  - rename -f 's/\.jar$/\.jar.BACK/' *.jar
+  - cd $ConsultRunnerPath/$CI_COMMIT_REF_SLUG/$CI_PROJECT_NAME/
+  - git pull origin UATCONSULT
+  - chmod +x gradlew
+  - sudo update-alternatives --set java java-11-openjdk.x86_64
+  - sudo ./gradlew build -x test
+ only:
+  - UATCONSULT
+ tags:
+  - MainRunner
+Deploy_UATCONSULT:
+ stage: deploy
+ script:
+  - scp $ConsultRunnerPath/$CI_COMMIT_REF_SLUG/$CI_PROJECT_NAME/build/libs/$CI_PROJECT_NAME-*.jar $UATCONSULT:$DeployScriptPath/$CI_PROJECT_NAME/
+  - ssh $UATCONSULT "sudo /bin/bash $DeployScriptPath/$CI_PROJECT_NAME/$CI_PROJECT_NAME-deploy.sh"
+ only:
+  - UATCONSULT
+ tags:
+  - MainRunner
+
+Build_RELEASECONSULT:
+ stage: build
+ script:
+  - cd $ConsultRunnerPath/$CI_COMMIT_REF_SLUG/$CI_PROJECT_NAME/build/libs
+  - rename -f 's/\.jar$/\.jar.BACK/' *.jar
+  - cd $ConsultRunnerPath/$CI_COMMIT_REF_SLUG/$CI_PROJECT_NAME/
+  - git pull origin RELEASECONSULT
+  - chmod +x gradlew
+  - sudo update-alternatives --set java java-11-openjdk.x86_64
+  - sudo ./gradlew build -x test
+ only:
+  - RELEASECONSULT
+ tags:
+  - MainRunner
+Deploy_RELEASECONSULT:
+ stage: deploy
+ script:
+  - scp $ConsultRunnerPath/$CI_COMMIT_REF_SLUG/$CI_PROJECT_NAME/build/libs/$CI_PROJECT_NAME-*.jar $RELEASECONSULT:$DeployScriptPath/$CI_PROJECT_NAME/
+  - ssh $RELEASECONSULT "sudo /bin/bash $DeployScriptPath/$CI_PROJECT_NAME/$CI_PROJECT_NAME-deploy.sh"
+ only:
+  - RELEASECONSULT
+ when: manual
+ tags:
+  - MainRunner
+
+Build_PRODUCTIONCONSULT:
+ stage: build
+ script:
+  - cd $ConsultRunnerPath/$CI_COMMIT_REF_SLUG/$CI_PROJECT_NAME/build/libs
+  - rename -f 's/\.jar$/\.jar.BACK/' *.jar
+  - cd $ConsultRunnerPath/$CI_COMMIT_REF_SLUG/$CI_PROJECT_NAME/
+  - git pull origin master
+  - chmod +x gradlew
+  - sudo update-alternatives --set java java-11-openjdk.x86_64
+  - sudo ./gradlew build -x test
+ only:
+  - master
+ tags:
+  - MainRunner
+Deploy_PRODUCTIONCONSULT:
+ stage: deploy
+ script:
+  - scp $ConsultRunnerPath/$CI_COMMIT_REF_SLUG/$CI_PROJECT_NAME/build/libs/$CI_PROJECT_NAME-*.jar $PRODUCTIONCONSULT:$DeployScriptPath/$CI_PROJECT_NAME/
+  - ssh $PRODUCTIONCONSULT "sudo /bin/bash $DeployScriptPath/$CI_PROJECT_NAME/$CI_PROJECT_NAME-deploy.sh"
+ only:
+  - master
+ when: manual
+ tags:
+  - MainRunner
+
