@@ -2,7 +2,15 @@ version: '3.8'
 services:
   kafka_manager:
     image: hlebalbau/kafka-manager:stable
+    container_name: yahoo
+    hostname: yahoo
     ports:
       - "9000:9000"
     environment:
       ZK_HOSTS: "192.168.50.63:2181,192.168.50.64:2181,192.168.50.65:2181/kafka"
+    volumes:
+      - cmak_config:/kafka-manager/conf
+      - /etc/hosts:/etc/hosts
+
+volumes:
+   cmak_config:
