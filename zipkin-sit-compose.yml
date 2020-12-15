@@ -10,3 +10,34 @@ services:
       - ES_INDEX=index-zipkin-sit
      ports:
       - 9411:9411
+      
+# With kafka 
+
+version: '3.8'
+services:
+  zipkin-sit:
+     image: openzipkin/zipkin
+     container_name: zipkin-sit
+     hostname: zipkin-sit
+     environment:
+      - KAFKA_BOOTSTRAP_SERVERS=192.168.50.63:9092,192.168.50.64:9092,192.168.50.65:9092
+      - KAFKA_GROUP_ID=docker-zipkin-sit
+      - KAFKA_TOPIC=zipkin-sit
+#      - STORAGE_TYPE=elasticsearch
+#      - ES_HOSTS=https://192.168.50.18:9200
+#      - ES_USERNAME=zip
+#      - ES_PASSWORD=zipkinpassword
+#      - ES_INDEX=index-zipkin-uat
+#      - ES_javax.net.ssl.trustStoreType=PKCS12
+#      - ES_javax.net.ssl.trustStore=/opt/elastic-certificates.p12
+#      - ES_javax.net.ssl.keyStore=/opt/elasticsearch.keystore
+     ports:
+      - 9411:9411
+     volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - zipkin_ssl:/opt/
+
+volumes:
+    zipkin_ssl:
+       name: zipkin_ssl
+
