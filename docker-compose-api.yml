@@ -1,14 +1,20 @@
 version: '3.8'
 
 services:
-  api-gateway:
-    restart: always
-    image: "$CI_REGISTRY/$CI_PROJECT_PATH/$CI_COMMIT_REF_SLUG:$CI_PIPELINE_ID"
-    command: ash -c "cd /opt/api-gateway-service && java -jar *.jar --spring.profiles.active=sit --spring.cloud.config.label=sit --spring.cloud.config.uri=http://4.3.2.1:8893"
+  api-gateway-service:
+    hostname: api-gateway-service
+    image: $IMAGE_TAG
+    deploy:
+      mode: global
+
+    command: ash -c "cd /opt/api-gateway-service && java -jar *.jar --spring.profiles.active=prod --spring.cloud.config.label=master --spring.cloud.config.uri=http://properties-service:8893"
     ports:
-      - "2500:2500"
+      - "9000:9000"
     networks:
-      - sit-network
+      - Production-Network
+    volumes:
+       - /etc/localtime:/etc/localtime:ro
 networks:
-     sit-network:
-         name:  sit-network
+  Production-Network:
+   name: Production-Network
+   driver: overlay
