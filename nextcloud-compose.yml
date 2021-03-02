@@ -35,3 +35,41 @@ volumes:
 networks:
   nexcloud-Network:
    name: nexcloud-Network
+
+
+---
+<?php
+$CONFIG = array (
+  'htaccess.RewriteBase' => '/',
+  'memcache.local' => '\\OC\\Memcache\\APCu',
+  'apps_paths' =>
+  array (
+    0 =>
+    array (
+      'path' => '/var/www/html/apps',
+      'url' => '/apps',
+      'writable' => false,
+    ),
+    1 =>
+    array (
+      'path' => '/var/www/html/custom_apps',
+      'url' => '/custom_apps',
+      'writable' => true,
+    ),
+  ),
+  'instanceid' => 'oc6jhglu2fi3',
+  'passwordsalt' => 'fTvhETN9rrhs21bCh4O+R3WTKmg5SH',
+  'secret' => 'Zl9nwtszjiiY5mbhis51ZtJvx8z41yDyjn+f9ncIOTpHe6bL',
+  'trusted_domains' =>
+  array (
+          0 => '192.168.50.24:8080',
+          1 => 'drive.domain.com'
+  ),
+  'datadirectory' => '/var/www/html/data',
+  'dbtype' => 'sqlite3',
+  'version' => '20.0.6.1',
+  'overwrite.cli.url' => 'http://192.168.50.24:8080',
+  'installed' => true,
+);
+
+
