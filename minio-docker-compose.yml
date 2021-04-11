@@ -1,0 +1,18 @@
+# mkdir -p /opt/minio/data
+# cd /opt/minio/
+# vim docker-compose.yml
+
+version: '3.9'
+services:
+   minio:
+    hostname: minio
+    container_name: minio
+    image: minio/minio
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./data:/data
+    environment:
+      MINIO_ACCESS_KEY: dadvar_minio_kit
+      MINIO_SECRET_KEY: Dadvar_minio_kit1400
+    command: server --address 0.0.0.0:9000 /data
