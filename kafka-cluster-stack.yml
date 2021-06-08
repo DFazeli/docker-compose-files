@@ -318,7 +318,7 @@ services:
 #  hosts es01.itodns.ir,es02.itodns.ir
 #  port 9200
 #  user elastic
-#  password LMcQeFGjp7U9uAt
+#  password LMcQeFGjp7
 #  scheme http
 #  include_timestamp true
 #  logstash_format false
@@ -333,4 +333,33 @@ services:
 #    num_threads 8
 #  </buffer>
 </match>
+
+
+#--#--#--#--#-- Kafka-manager Or Cmak for kafka monitoring #--#--#--#--#--
+version: '3.8'
+services:
+  kafka-monitoring:
+    container_name: kafka-monitoring
+    image: hlebalbau/kafka-manager
+    restart: on-failure
+    command: -Dconfig.file=/cmak/conf/application.conf -Dapplication.home=/cmak
+    environment:
+      - ZK_HOSTS=192.168.35.52:22181
+    ports:
+      - "9001:9000"
+    volumes:
+      # - cmak_config:/cmak/conf/
+       - /etc/localtime:/etc/localtime:ro
+    extra_hosts:
+      kafka1: 192.168.35.52
+      kafka2: 192.168.35.72
+      kafka3: 192.168.35.85
+volumes:
+   cmak_config:
+      driver: local
+      driver_opts:
+        type: 'none'
+        o: 'bind'
+        device: '/opt/cmak-config'
+
 
