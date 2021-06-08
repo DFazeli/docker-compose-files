@@ -322,14 +322,14 @@ services:
 <match topic1>
   @type stdout
 #  @type elasticsearch
-#  hosts es01.itodns.ir,es02.itodns.ir
+#  hosts ES-MASTER01,ES-MASTER02
 #  port 9200
 #  user elastic
 #  password LMcQeFGjp7
 #  scheme http
 #  include_timestamp true
 #  logstash_format false
-#  index_name dnsquerylog-alias
+#  index_name topic1-alias
 #  suppress_type_name true
 #  prefer_oj_serializer true
 #  <buffer tag, time>
