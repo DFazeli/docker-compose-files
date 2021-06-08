@@ -5,6 +5,9 @@
 # docker node update --label-add node1=kafka1 olip8tm3mqn7mxg4e875xbwfe [Node id]
 # docker node update --label-add node2=kafka2 olip8tm3mqn7mxg4e875xbwbn [Node id]
 # docker node update --label-add node3=kafka3 olip8tm3mqn7mxg4e875xbwgh [Node id]
+# on node1: mkdir -p /opt/kafka-cluster/kafka_data1 && mkdir -p /opt/kafka-cluster/zookeeper_data1 
+# on node2: mkdir -p /opt/kafka-cluster/kafka_data2 && mkdir -p /opt/kafka-cluster/zookeeper_data2
+# on node3: mkdir -p /opt/kafka-cluster/kafka_data3 && mkdir -p /opt/kafka-cluster/zookeeper_data3 
 # docker stack deploy -c kafka-cluster-stack.yml zk
 
 version: '3.9'
@@ -287,15 +290,17 @@ services:
   workers 3
   log_level error
 </system>
+
 <source>
   @type kafka_group
   brokers 192.168.35.52:9094,192.168.35.72:9094,192.168.35.85:9094
-  topics dnsquerylog
-  consumer_group fluentd-dnsquerylog
+  topics topic1
+  consumer_group fluentd-topic1-Reader
   start_from_beginning false
   num_threads 3
 </source>
-<filter dnsquerylog>
+
+<filter topic1>
   @type parser
   key_name message
   reserve_data true
@@ -307,12 +312,14 @@ services:
      expression  /\[(?<timestamp>\S*)\] Packet from (?<DNS_Client_IP>[^:]*):(?<DNS_Client_Port>\d*) for (?<DNS_Domain_name>\S*) (?<DNS_Query_Type>\w*) with id (?<DNS_Query_ID>\d*)/i
   </parse>
 </filter>
-<filter dnsquerylog>
+
+<filter topic1>
   @type record_transformer
   remove_keys @metadata,message,input,fields,agent,ecs,log
   enable_ruby true
 </filter>
-<match dnsquerylog>
+
+<match topic1>
   @type stdout
 #  @type elasticsearch
 #  hosts es01.itodns.ir,es02.itodns.ir
