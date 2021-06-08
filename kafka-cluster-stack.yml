@@ -227,3 +227,103 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+      
+      
+ # ###### Filebeat config sample #########
+ filebeat.config.modules:
+  path: /etc/filebeat/modules.d/*.yml
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /var/log/app.log
+  fields:
+     log_topic: TopicName
+
+output.kafka:
+    hosts: ["kafka1:9094","kafka2:9094","kafka3:9094"]
+    topic: '%{[fields.log_topic]}'
+    required_acks: 1
+    compression: gzip
+    max_message_bytes: 1000000
+
+ # ------ /etc/hosts in filebeat server -----
+  192.168.35.52 kafka1
+  192.168.35.72 kafka2
+  192.168.35.85 kafka3
+
+# --#---#---#-- Fluntd-compose.yml --#--#--#--#--#--#--
+version: "3.9"
+services:
+  fluentd-dnsquerylog:
+    image: 192.168.35.101:5000/fluentd:1.0
+    restart: always
+    volumes:
+      - ./config/fluentd/fluentd-dnsquerylog.conf:/fluentd/etc/fluent.conf
+    deploy:
+      resources:
+        limits:
+          cpus: 2
+          memory: 2g
+    extra_hosts:
+      kafka1: 192.168.35.52
+      kafka2: 192.168.35.72
+      kafka3: 192.168.35.85
+    logging:
+       driver: "json-file"
+       options:
+          max-size: "200k"
+          max-file: "10"
+ 
+#--#--#--#--#--# fluntd Config --#--#--#--#--#--#--#--#--
+<system>
+  workers 3
+  log_level error
+</system>
+<source>
+  @type kafka_group
+  brokers 192.168.35.52:9094,192.168.35.72:9094,192.168.35.85:9094
+  topics dnsquerylog
+  consumer_group fluentd-dnsquerylog
+  start_from_beginning false
+  num_threads 3
+</source>
+<filter dnsquerylog>
+  @type parser
+  key_name message
+  reserve_data true
+  reserve_time false
+  <parse>
+     @type regexp
+     time_key timestamp
+     time_type float
+     expression  /\[(?<timestamp>\S*)\] Packet from (?<DNS_Client_IP>[^:]*):(?<DNS_Client_Port>\d*) for (?<DNS_Domain_name>\S*) (?<DNS_Query_Type>\w*) with id (?<DNS_Query_ID>\d*)/i
+  </parse>
+</filter>
+<filter dnsquerylog>
+  @type record_transformer
+  remove_keys @metadata,message,input,fields,agent,ecs,log
+  enable_ruby true
+</filter>
+<match dnsquerylog>
+  @type stdout
+#  @type elasticsearch
+#  hosts es01.itodns.ir,es02.itodns.ir
+#  port 9200
+#  user elastic
+#  password LMcQeFGjp7U9uAt
+#  scheme http
+#  include_timestamp true
+#  logstash_format false
+#  index_name dnsquerylog-alias
+#  suppress_type_name true
+#  prefer_oj_serializer true
+#  <buffer tag, time>
+#    flush_thread_count 8
+#    timekey 1s
+#    timekey_wait 0s
+#    retry_wait 1.0
+#    num_threads 8
+#  </buffer>
+</match>
+
